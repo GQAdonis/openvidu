@@ -5,15 +5,17 @@ public class SessionProperties {
 	private MediaMode mediaMode;
 	private ArchiveMode archiveMode;
 	private ArchiveLayout archiveLayout;
+	private String customLayout;
 
 	public static class Builder {
 
 		private MediaMode mediaMode = MediaMode.ROUTED;
 		private ArchiveMode archiveMode = ArchiveMode.MANUAL;
 		private ArchiveLayout archiveLayout = ArchiveLayout.BEST_FIT;
+		private String customLayout = "";
 
 		public SessionProperties build() {
-			return new SessionProperties(this.mediaMode, this.archiveMode, this.archiveLayout);
+			return new SessionProperties(this.mediaMode, this.archiveMode, this.archiveLayout, this.customLayout);
 		}
 
 		public SessionProperties.Builder mediaMode(MediaMode mediaMode) {
@@ -31,6 +33,11 @@ public class SessionProperties {
 			return this;
 		}
 
+		public SessionProperties.Builder customLayout(String customLayout) {
+			this.customLayout = customLayout;
+			return this;
+		}
+
 	}
 
 	protected SessionProperties() {
@@ -39,10 +46,12 @@ public class SessionProperties {
 		this.archiveLayout = ArchiveLayout.BEST_FIT;
 	}
 
-	private SessionProperties(MediaMode mediaMode, ArchiveMode archiveMode, ArchiveLayout archiveLayout) {
+	private SessionProperties(MediaMode mediaMode, ArchiveMode archiveMode, ArchiveLayout archiveLayout,
+			String customLayout) {
 		this.mediaMode = mediaMode;
 		this.archiveMode = archiveMode;
 		this.archiveLayout = archiveLayout;
+		this.customLayout = customLayout;
 	}
 
 	public ArchiveMode archiveMode() {
@@ -55,6 +64,10 @@ public class SessionProperties {
 
 	public ArchiveLayout archiveLayout() {
 		return this.archiveLayout;
+	}
+
+	public String customLayout() {
+		return this.customLayout;
 	}
 
 }

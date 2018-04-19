@@ -46,6 +46,7 @@ public class Session {
 			JSONObject json = new JSONObject();
 			json.put("archiveLayout", properties.archiveLayout().name());
 			json.put("archiveMode", properties.archiveMode().name());
+			json.put("customLayout", properties.customLayout());
 			json.put("mediaMode", properties.mediaMode().name());
 			StringEntity params = new StringEntity(json.toString());
 			
