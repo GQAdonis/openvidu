@@ -4,7 +4,7 @@ import { ArchiveLayout } from "./ArchiveLayout";
 
 export class SessionProperties {
 
-	constructor(private mediaModeProp: MediaMode, private archiveModeProp: ArchiveMode, private archiveLayoutProp: ArchiveLayout) { }
+	constructor(private mediaModeProp: MediaMode, private archiveModeProp: ArchiveMode, private archiveLayoutProp: ArchiveLayout, private rCustomLayout: string) { }
 
 	mediaMode(): string {
 		return this.mediaModeProp;
@@ -17,6 +17,10 @@ export class SessionProperties {
 	archiveLayout(): ArchiveLayout {
 		return this.archiveLayoutProp;
 	}
+
+	customLayout(): string {
+		return this.rCustomLayout;
+	}
 }
 
 export namespace SessionProperties {
@@ -25,9 +29,10 @@ export namespace SessionProperties {
 		private mediaModeProp: MediaMode = MediaMode.ROUTED;
 		private archiveModeProp: ArchiveMode = ArchiveMode.MANUAL;
 		private archiveLayoutProp: ArchiveLayout = ArchiveLayout.BEST_FIT;
+		private rCustomLayout: string = '';
 
 		build(): SessionProperties {
-			return new SessionProperties(this.mediaModeProp, this.archiveModeProp, this.archiveLayoutProp);
+			return new SessionProperties(this.mediaModeProp, this.archiveModeProp, this.archiveLayoutProp, this.rCustomLayout);
 		}
 
 		mediaMode(mediaMode: MediaMode): Builder {
@@ -42,6 +47,11 @@ export namespace SessionProperties {
 
 		archiveLayout(archiveLayout: ArchiveLayout): Builder {
 			this.archiveLayoutProp = archiveLayout;
+			return this;
+		}
+
+		customLayout(customLayout: string): Builder {
+			this.rCustomLayout = customLayout;
 			return this;
 		}
 	};

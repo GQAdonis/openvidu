@@ -25,7 +25,8 @@ var Session = /** @class */ (function () {
         var requestBody = JSON.stringify({
             'archiveLayout': this.properties.archiveLayout(),
             'archiveMode': this.properties.archiveMode(),
-            'mediaMode': this.properties.mediaMode()
+            'mediaMode': this.properties.mediaMode(),
+            'customLayout': this.properties.customLayout()
         });
         var options = {
             hostname: this.hostname,
