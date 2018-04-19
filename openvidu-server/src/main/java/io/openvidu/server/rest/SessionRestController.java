@@ -87,6 +87,7 @@ public class SessionRestController {
 		if (params != null) {
 			String archiveModeString = (String) params.get("archiveMode");
 			String archiveLayoutString = (String) params.get("archiveLayout");
+			String archiveCustomLayoutString = (String) params.get("customLayout");
 			String mediaModeString = (String) params.get("mediaMode");
 
 			try {
@@ -97,6 +98,9 @@ public class SessionRestController {
 				if (archiveLayoutString != null) {
 					ArchiveLayout archiveLayout = ArchiveLayout.valueOf(archiveLayoutString);
 					builder = builder.archiveLayout(archiveLayout);
+				}
+				if (archiveCustomLayoutString != null) {
+					builder = builder.customLayout(archiveCustomLayoutString);
 				}
 				if (mediaModeString != null) {
 					MediaMode mediaMode = MediaMode.valueOf(mediaModeString);

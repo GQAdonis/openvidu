@@ -17,6 +17,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
+		
+		// Security for API REST
 		ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry conf = http.csrf().disable()
 		.authorizeRequests()
         .antMatchers(HttpMethod.POST, "/api/sessions").authenticated()
@@ -28,7 +30,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .antMatchers(HttpMethod.DELETE, "/api/recordings/**").authenticated()
         .antMatchers("/").authenticated();
         
-        if (openviduConf.getOpenViduRecordingFreeAccess()) {
+		// Security for layouts
+		conf.antMatchers("/layouts/*").authenticated();
+		
+		// Security for recorded videos
+		if (openviduConf.getOpenViduRecordingFreeAccess()) {
         	conf = conf.antMatchers("/recordings/*").permitAll();
         } else {
         	conf = conf.antMatchers("/recordings/*").authenticated();

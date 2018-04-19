@@ -44,6 +44,7 @@ import com.github.dockerjava.core.command.PullImageResultCallback;
 
 import io.openvidu.client.OpenViduException;
 import io.openvidu.client.OpenViduException.Code;
+import io.openvidu.java.client.ArchiveLayout;
 import io.openvidu.server.CommandExecutor;
 import io.openvidu.server.OpenViduServer;
 import io.openvidu.server.config.OpenviduConfig;
@@ -79,10 +80,8 @@ public class ComposedRecordingService {
 		String shortSessionId = session.getSessionId().substring(session.getSessionId().lastIndexOf('/') + 1,
 				session.getSessionId().length());
 		String videoId = this.getFreeRecordingId(session.getSessionId(), shortSessionId);
-		String secret = openviduConfig.getOpenViduSecret();
 
 		Recording recording = new Recording(session.getSessionId(), videoId, videoId);
-		
 		this.sessionsRecordings.put(session.getSessionId(), recording);
 		this.startingRecordings.put(recording.getId(), recording);
 
@@ -96,11 +95,9 @@ public class ComposedRecordingService {
 			e.printStackTrace();
 		}
 
-		String location = OpenViduServer.publicUrl.replaceFirst("wss://", "");
-		String layoutUrl = session.getSessionProperties().archiveLayout().name().toLowerCase().replaceAll("_", "-");
+		String layoutUrl = this.getLayoutUrl(session, shortSessionId);
 
-		envs.add("URL=https://OPENVIDUAPP:" + secret + "@" + location + "/#/layout-" + layoutUrl + "/" + shortSessionId
-				+ "/" + secret);
+		envs.add("URL=" + layoutUrl);
 		envs.add("RESOLUTION=1920x1080");
 		envs.add("FRAMERATE=30");
 		envs.add("VIDEO_NAME=" + videoId);
@@ -109,8 +106,7 @@ public class ComposedRecordingService {
 		envs.add("RECORDING_JSON=" + recording.toJson().toJSONString());
 
 		log.info(recording.toJson().toJSONString());
-		log.debug("Recorder connecting to url {}",
-				"https://OPENVIDUAPP:" + secret + "@localhost:8443/#/layout-best-fit/" + shortSessionId + "/" + secret);
+		log.debug("Recorder connecting to url {}", layoutUrl);
 
 		String containerId = this.runRecordingContainer(envs, "recording_" + videoId);
 
@@ -119,7 +115,7 @@ public class ComposedRecordingService {
 		this.sessionsContainers.put(session.getSessionId(), containerId);
 
 		recording.setStatus(Recording.Status.started);
-		
+
 		this.startedRecordings.put(recording.getId(), recording);
 		this.startingRecordings.remove(recording.getId());
 
@@ -213,7 +209,8 @@ public class ComposedRecordingService {
 				throw e;
 			}
 		} catch (DockerClientException e) {
-			log.info("Error on Pulling '{}' image. Probably because the user has stopped the execution", IMAGE_NAME + ":" + IMAGE_TAG);
+			log.info("Error on Pulling '{}' image. Probably because the user has stopped the execution",
+					IMAGE_NAME + ":" + IMAGE_TAG);
 			throw e;
 		}
 	}
@@ -225,15 +222,15 @@ public class ComposedRecordingService {
 	public Recording getStartedRecording(String recordingId) {
 		return this.startedRecordings.get(recordingId);
 	}
-	
+
 	public Recording getStartingRecording(String recordingId) {
 		return this.startingRecordings.get(recordingId);
 	}
 
 	private String runRecordingContainer(List<String> envs, String containerName) {
 		Volume volume1 = new Volume("/recordings");
-		CreateContainerCmd cmd = dockerClient.createContainerCmd(IMAGE_NAME + ":" + IMAGE_TAG).withName(containerName).withEnv(envs)
-				.withNetworkMode("host").withVolumes(volume1)
+		CreateContainerCmd cmd = dockerClient.createContainerCmd(IMAGE_NAME + ":" + IMAGE_TAG).withName(containerName)
+				.withEnv(envs).withNetworkMode("host").withVolumes(volume1)
 				.withBinds(new Bind(openviduConfig.getOpenViduRecordingPath(), volume1));
 		CreateContainerResponse container = null;
 		try {
@@ -273,7 +270,7 @@ public class ComposedRecordingService {
 	public Collection<Recording> getAllRecordings() {
 		return this.getRecordingEntitiesFromHost();
 	}
-	
+
 	public Collection<Recording> getStartingRecordings() {
 		return this.startingRecordings.values();
 	}
@@ -399,7 +396,28 @@ public class ComposedRecordingService {
 		this.removeDockerContainer(containerId);
 		throw e;
 	}
-	
+
+	private String getLayoutUrl(Session session, String shortSessionId) {
+		String secret = openviduConfig.getOpenViduSecret();
+		String location = OpenViduServer.publicUrl.replaceFirst("wss://", "");
+		String layout, finalUrl;
+
+		if (ArchiveLayout.CUSTOM.equals(session.getSessionProperties().archiveLayout())) {
+			layout = session.getSessionProperties().customLayout();
+			layout = layout.startsWith("/") ? layout.substring(1) : layout;
+			layout = layout.endsWith("/") ? layout.substring(0, layout.length() - 1) : layout;
+			layout += "/index.html";
+			finalUrl = "https://OPENVIDUAPP:" + secret + "@" + location + "/layouts/custom/" + layout + "/?sessionId="
+					+ shortSessionId + "&secret=" + secret;
+		} else {
+			layout = session.getSessionProperties().archiveLayout().name().toLowerCase().replaceAll("_", "-");
+			finalUrl = "https://OPENVIDUAPP:" + secret + "@" + location + "/#/layout-" + layout + "/" + shortSessionId
+					+ "/" + secret;
+		}
+
+		return finalUrl;
+	}
+
 	public void setRecordingVersion(String version) {
 		this.IMAGE_TAG = version;
 	}

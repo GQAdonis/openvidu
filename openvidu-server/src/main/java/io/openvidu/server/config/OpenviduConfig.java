@@ -26,6 +26,9 @@ public class OpenviduConfig {
 
 	@Value("${openvidu.recording.free-access}")
 	boolean openviduRecordingFreeAccess;
+	
+	@Value("${openvidu.recording.custom-layout}")
+	String openviduRecordingCustomLayout;
 
 	@Value("${openvidu.recording.version}")
 	String openviduRecordingVersion;
@@ -59,13 +62,21 @@ public class OpenviduConfig {
 	public String getOpenViduRecordingPath() {
 		return this.openviduRecordingPath;
 	}
+	
+	public void setOpenViduRecordingPath(String recordingPath) {
+		this.openviduRecordingPath = recordingPath;
+	}
 
 	public boolean getOpenViduRecordingFreeAccess() {
 		return this.openviduRecordingFreeAccess;
 	}
-
-	public void setOpenViduRecordingPath(String recordingPath) {
-		this.openviduRecordingPath = recordingPath;
+	
+	public String getOpenviduRecordingCustomLayout() {
+		return this.openviduRecordingCustomLayout;
+	}
+	
+	public void setOpenViduRecordingCustomLayout(String recordingCustomLayout) {
+		this.openviduRecordingCustomLayout = recordingCustomLayout;
 	}
 
 	public String getFinalUrl() {

@@ -34,7 +34,12 @@
     "type": "java.lang.Boolean",
     "description": "'true' to allow free access to the video files specified in 'openviu.recording.path'. 'false' to only allow access to authenticated users"
   },
-    {
+  {
+    "name": "openvidu.recording.custom-layout",
+    "type": "java.lang.String",
+    "description": "Where should OpenVidu Server look for custom recording layouts"
+  },
+  {
     "name": "openvidu.recording.version",
     "type": "java.lang.String",
     "description": "Tag for openvidu/openvidu-recording Docker image"
